@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Trikaal tests</title>
+</head>
+<body>
+  <!-- Usage: /tests/index.html?suites=p2,p3  -->
+  <pre id="out">running...</pre>
+  <script>
+    // Cache-bust the helpers too (the static server allows heuristic caching).
+    const bust = Date.now();
+    document.write('<script src="/tests/tiny.js?t=' + bust + '"><\/script><script src="/tests/mock-chrome.js?t=' + bust + '"><\/script>');
+  </script>
+  <script>
+    (async () => {
+      const suites = (new URLSearchParams(location.search).get('suites') || '').split(',').filter(Boolean);
+      // A suite may register tests asynchronously by setting window.__suitePending.
+      for (const s of suites) { await loadScripts(['/tests/' + s + '.test.js']); await window.__suitePending; }
+      await runTests();
+      window.__finished = true;
+    })();
+  </script>
+</body>
+</html>

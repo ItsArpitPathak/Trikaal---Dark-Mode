@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Late shadow DOM</title>
+<style>body{background:#fff;color:#222;font:16px sans-serif}</style></head>
+<body><h1>Components that attach their shadow root late</h1><div id="slot"></div>
+<script>
+  // Like an ad/widget web component: inserted first, shadow root attached afterwards.
+  class LateBox extends HTMLElement {
+    connectedCallback() {
+      setTimeout(() => {
+        const sr = this.attachShadow({ mode: 'open' });
+        sr.innerHTML = '<style>.box{background:#f5f5f5;color:#111;padding:8px;border:1px solid #ddd;margin:6px}</style><div class="box" id="inner">late shadow content</div>';
+      }, 400);
+    }
+  }
+  customElements.define('late-box', LateBox);
+  setTimeout(() => { document.getElementById('slot').appendChild(document.createElement('late-box')); }, 100);
+  window.__addMore = () => document.getElementById('slot').appendChild(document.createElement('late-box'));
+</script></body></html>

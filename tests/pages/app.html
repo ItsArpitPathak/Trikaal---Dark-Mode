@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Light web-app fixture</title>
+  <style>
+    :root { --bg: #ffffff; --text: #111111; --border: #dddddd; --accent: #0a66c2; --rgb: 255, 255, 255; --shadow: 0 1px 3px rgba(0,0,0,.2); }
+    .page { background: #fff; color: #222; font: 16px/1.5 sans-serif; padding: 8px; }
+    .hdr { background: #f2f2f2; border-bottom: 1px solid #ddd; padding: 8px; }
+    .hdr a { color: #0645ad; }
+    .hdr a:hover { color: #0b0080; background: #e0e0e0; }
+    .btn { background: #1a73e8; color: #fff; border: 1px solid #1557b0; padding: 4px 8px; }
+    .btn:hover { background: #e8f0fe; color: #174ea6; }
+    .card { background: linear-gradient(#fff, #e8e8e8); border: 1px solid #ccc; padding: 8px; margin: 8px 0; }
+    .badge { background: #ffeb3b; color: #000; padding: 2px 6px; }
+    .navy { background: #0a2540; color: #fff; padding: 6px; }
+    .zebra tr:nth-child(even) { background: #f9f9f9; }
+    .zebra td { border: 1px solid #e0e0e0; padding: 2px 6px; color: #333; }
+    .v { background: var(--bg); color: var(--text); border: 1px solid var(--border); padding: 4px; }
+    .v2 { background: rgba(var(--rgb), .9); color: var(--text); padding: 4px; }
+    .v3 { color: var(--accent); }
+    @media (min-width: 1px) { .m { background: #eee; color: #111; padding: 4px; } }
+    @supports (display: grid) { .s { background: #efefef; color: #111; padding: 4px; } }
+    @layer base { .l { background: #eee; color: #111; padding: 4px; } }
+    @keyframes pulse { from { background: #fff; } to { background: #ccc; } }
+    .anim { animation: pulse 1s infinite alternate paused; color: #000; }
+    .hero { height: 60px; background: #ccc url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><rect width='20' height='20' fill='%23dddddd'/></svg>"); color: #fff; }
+    .named { background: lightyellow; color: navy; padding: 4px; }
+    .hsl { background: hsl(210 50% 96%); color: hsl(210 80% 20%); padding: 4px; }
+    .icon { width: 24px; height: 24px; }
+  </style>
+</head>
+<body>
+  <div class="page" id="page">
+    <div class="hdr" id="hdr"><strong>App</strong> <a href="#" id="lnk">Link</a> <button class="btn" id="btn">Save</button></div>
+    <div class="card" id="card">Card with gradient</div>
+    <span class="badge" id="badge">NEW</span>
+    <div class="navy" id="navy">Already dark navy header</div>
+    <table class="zebra" id="tbl"><tr><td>a</td><td>b</td></tr><tr><td>c</td><td>d</td></tr></table>
+    <div class="v" id="v">variables</div>
+    <div class="v2" id="v2">rgba(var(--rgb))</div>
+    <span class="v3" id="v3">accent link-ish</span>
+    <div class="m" id="m">media</div>
+    <div class="s" id="s">supports</div>
+    <div class="l" id="l">layer</div>
+    <div class="anim" id="anim">animated</div>
+    <div class="hero" id="hero">hero over image</div>
+    <div class="named" id="named">named colors</div>
+    <div class="hsl" id="hsl">hsl colors</div>
+    <div id="inl1" style="background:#fafafa;color:#333;padding:4px">inline light</div>
+    <div id="inl2" style="background:#e63946;color:#fff;padding:4px">inline brand red</div>
+    <div id="inl3" style="background:linear-gradient(90deg,#fff,#ddd);color:#111;padding:4px">inline gradient</div>
+    <input id="inp" value="text input" style="width:120px">
+    <textarea id="ta">area</textarea>
+    <select id="sel"><option>one</option></select>
+    <svg class="icon" id="svg" viewBox="0 0 24 24"><rect id="svgrect" width="24" height="24" fill="#fff"/><path id="svgpath" d="M4 4h16v16H4z" fill="#000"/></svg>
+    <img id="img" alt="img" width="40" height="40" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><rect width='40' height='40' fill='%23ffffff'/><circle cx='20' cy='20' r='10' fill='%23e63946'/></svg>">
+    <font id="oldfont" color="#000000">legacy font tag</font>
+    <div id="shadowhost"></div>
+  </div>
+</body>
+</html>

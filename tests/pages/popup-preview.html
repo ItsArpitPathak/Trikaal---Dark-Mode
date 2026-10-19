@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Popup preview</title>
+<style>body{margin:0;background:#888;display:flex;gap:16px;padding:12px}iframe{border:0;width:340px;height:640px;background:#fff}</style></head>
+<body>
+<!-- Renders the real popup with a mock chrome so its look can be reviewed. ?open=1 expands Advanced. -->
+<script src="/tests/mock-chrome.js"></script>
+<script src="/tests/tiny.js"></script>
+<script>
+(async () => {
+  const q = new URLSearchParams(location.search);
+  const c = window.chrome = createMockChrome();
+  c.tabs = { query: async () => [{ url: 'https://www.example.com/article' }] };
+  await c.storage.sync.set({
+    'trikaal': { defaultMode: 'light', forcedEngine: 'rewrite', forcedAdjust: { brightness: 90, contrast: 100, sepia: 15 } },
+    'trikaal.sites': { 'www.example.com': 'forced' },
+    'trikaal.excluded': ['bank.example.org', 'docs.google.com'],
+  });
+  const p = await mountPopup(c);
+  if (q.get('open')) p.doc.getElementById('advanced').open = true;
+  p.iframe.style.height = (p.doc.documentElement.scrollHeight + 4) + 'px';
+  window.__ready = true;
+})();
+</script>
+</body>
+</html>

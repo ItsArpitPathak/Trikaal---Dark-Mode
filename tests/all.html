@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Trikaal – all test suites</title>
+</head>
+<body>
+  <!-- Usage: /tests/all.html?suites=p2,p3,p4  Each suite runs in its own iframe so module
+       instances never leak between suites. Aggregate lands in window.__all. -->
+  <pre id="out">running...</pre>
+  <script>
+    (async () => {
+      const suites = (new URLSearchParams(location.search).get('suites') || 'p2,p4,p5,p6,p7,p8,p9').split(',').filter(Boolean);
+      const all = { passed: 0, failed: 0, failures: [], perSuite: {} };
+      window.__all = all;
+      for (const s of suites) {
+        const f = document.createElement('iframe');
+        f.style.cssText = 'width:900px;height:700px;border:1px solid #ccc';
+        f.src = '/tests/index.html?suites=' + s + '&t=' + Date.now();
+        document.body.appendChild(f);
+        const t0 = Date.now();
+        while (!(f.contentWindow && f.contentWindow.__finished) && Date.now() - t0 < 120000) await new Promise((r) => setTimeout(r, 100));
+        const r = (f.contentWindow && f.contentWindow.__results) || { passed: 0, failed: 1, failures: [{ name: s, error: 'suite did not finish; last test: ' + (f.contentWindow && f.contentWindow.__current) }] };
+        all.passed += r.passed; all.failed += r.failed;
+        all.perSuite[s] = r.passed + '/' + (r.passed + r.failed);
+        for (const fl of r.failures) all.failures.push({ suite: s, ...fl });
+        f.remove();
+        document.getElementById('out').textContent = JSON.stringify(all, null, 1);
+      }
+      all.finished = true;
+      window.__finished = true;
+      document.getElementById('out').textContent = JSON.stringify(all, null, 1);
+    })();
+  </script>
+</body>
+</html>

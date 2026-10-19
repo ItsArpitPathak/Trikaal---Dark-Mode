@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Extension-loaded test page</title>
+  <!--
+    Loads the real content scripts (the same files as manifest.json) into a page
+    served as a TOP-LEVEL document, with a mock chrome. Query params:
+      page=/tests/pages/article.html   the page body to test against
+      mode=dark|forced|light           initial default mode
+  -->
+</head>
+<body>
+<script src="/tests/mock-chrome.js"></script>
+<script>
+  (async () => {
+    const q = new URLSearchParams(location.search);
+    window.chrome = window.__mock = createMockChrome();
+    const mode = q.get('mode');
+    if (mode) await chrome.storage.sync.set({ trikaal: { defaultMode: mode, siteOverrides: {} } });
+    // Same order as manifest.json.
+    const scripts = ['/shared/storage.js', '/content/util.js', '/content/color.js', '/content/detect.js',
+      '/content/forced-dark.js', '/content/rewrite.js', '/content/theme.js', '/content/controller.js', '/content/content.js'];
+    // Fetch the page markup first, then run the scripts at "document_start"-like timing is
+    // not possible here; this page checks behavior after normal load.
+    const html = await (await fetch(q.get('page') || '/tests/pages/article.html')).text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    document.title = doc.title;
+    // Adopt the test page's styles and body.
+    for (const s of doc.head.querySelectorAll('style')) document.head.appendChild(s.cloneNode(true));
+    document.body.innerHTML = doc.body.innerHTML;
+    for (const s of doc.body.querySelectorAll('script')) { const n = document.createElement('script'); n.textContent = s.textContent; document.body.appendChild(n); }
+    for (const src of scripts) await new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
+    window.__ready = true;
+  })();
+</script>
+</body>
+</html>

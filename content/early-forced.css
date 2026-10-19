@@ -1,0 +1,24 @@
+/* Trikaal early paint guard (Forced Dark).
+ *
+ * Registered by the service worker as a CSS-only content script, so Chrome itself injects
+ * it at document_start, before the first paint and before any JavaScript runs. Without it
+ * the first frames of a light page can appear before Trikaal has read its settings.
+ *
+ * While it is active the page sits on a dark canvas with the body hidden. As soon as
+ * Trikaal has themed the page (or decided not to) the content script sets
+ * html[data-trikaal-off], which switches every rule below off. If that never happens
+ * (script blocked, error, slow page) the CSS-only animation reveals the body after 1.2 s,
+ * so a page can never stay blank. Registered only for sites that will use Forced Dark.
+ */
+@keyframes trikaal-early-reveal { to { opacity: 1; } }
+
+html:not([data-trikaal-off]) {
+  color-scheme: dark !important;
+  background-color: #181818 !important;
+  --trikaal-early: 1; /* lets the content script detect that this guard is present */
+}
+
+html:not([data-trikaal-off]) > body {
+  opacity: 0;
+  animation: trikaal-early-reveal 0s linear 1.2s forwards;
+}

@@ -1,0 +1,58 @@
+{
+  "manifest_version": 3,
+  "name": "Trikaal",
+  "version": "1.0.0",
+  "description": "Light and Dark modes for any website. Everything runs locally; no data leaves your browser.",
+  "permissions": ["storage", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "shared/storage.js",
+        "content/util.js",
+        "content/color.js",
+        "content/detect.js",
+        "content/forced-dark.js",
+        "content/rewrite.js",
+        "content/theme.js",
+        "content/controller.js",
+        "content/content.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true,
+      "match_about_blank": true,
+      "match_origin_as_fallback": true
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/main-world.js"],
+      "run_at": "document_start",
+      "all_frames": true,
+      "world": "MAIN"
+    }
+  ],
+  "action": {
+    "default_title": "Trikaal",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "commands": {
+    "cycle-mode": {
+      "suggested_key": { "default": "Alt+Shift+D" },
+      "description": "Toggle Light and Dark for this site"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

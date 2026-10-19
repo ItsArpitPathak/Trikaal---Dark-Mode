@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Rewrite engine profiling</title></head>
+<body>
+<!-- Builds a big DOM and reports how long each main-thread slice of the rewrite engine takes.
+     Usage: /tests/prof.html?n=4000&inline=7  (inline: every Nth span gets an inline light background) -->
+<pre id="out">running...</pre>
+<div id="fx"></div>
+<script src="/tests/mock-chrome.js"></script>
+<script>
+(async () => {
+  const q = new URLSearchParams(location.search);
+  const n = +(q.get('n') || 4000), every = +(q.get('inline') || 7);
+  window.chrome = createMockChrome();
+  for (const src of ['/shared/storage.js', '/content/util.js', '/content/color.js', '/content/detect.js', '/content/forced-dark.js', '/content/rewrite.js']) {
+    await new Promise((res, rej) => { const s = document.createElement('script'); s.src = src + '?t=' + Date.now(); s.onload = res; s.onerror = rej; document.head.appendChild(s); });
+  }
+  const fx = document.getElementById('fx');
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement('span');
+    s.textContent = 'n' + i + ' ';
+    if (every && i % every === 0) s.style.background = '#f0f0f0';
+    fx.appendChild(s);
+  }
+  const slices = [];
+  const longtasks = [];
+  try { new PerformanceObserver((l) => l.getEntries().forEach((e) => longtasks.push(Math.round(e.duration)))).observe({ entryTypes: ['longtask'] }); } catch (e) {}
+  const engine = Trikaal.forced.engines.rewrite;
+  // Wrap rAF to time each engine slice (callback duration).
+  const raf = window.requestAnimationFrame;
+  window.requestAnimationFrame = (cb) => raf((t) => { const s = performance.now(); cb(t); slices.push(performance.now() - s); });
+  const t0 = performance.now();
+  engine.enable();
+  await engine.whenIdle();
+  const total = performance.now() - t0;
+  window.requestAnimationFrame = raf;
+  slices.sort((a, b) => b - a);
+  const rules = Array.from(document.querySelectorAll('[data-trikaal-dyn]')).reduce((a, s) => a + (s.sheet ? s.sheet.cssRules.length : 0), 0);
+  const st = {}; for (const k of Object.keys(engine.stats)) st[k] = Math.round(engine.stats[k]);
+  window.__prof = { n, stats: st, totalMs: Math.round(total), slices: slices.length, worstSliceMs: Math.round(slices[0] || 0), medianSliceMs: Math.round(slices[Math.floor(slices.length / 2)] || 0), longtasks: longtasks.slice(0, 10), rules };
+  document.getElementById('out').textContent = JSON.stringify(window.__prof, null, 1);
+  window.__done = true;
+})();
+</script>
+</body>
+</html>

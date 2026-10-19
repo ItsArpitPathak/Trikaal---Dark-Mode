@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Shadow DOM</title>
+<style>body{background:#fff;color:#222;font:16px sans-serif} </style></head>
+<body><h1>Shadow DOM host</h1><div id="host"></div>
+<script>
+  const sr = document.getElementById('host').attachShadow({ mode: 'open' });
+  sr.innerHTML = '<style>.box{background:#f5f5f5;color:#111;padding:8px;border:1px solid #ddd} a{color:#0645ad}</style><div class="box" id="inner">inside shadow <a href="#">link</a></div>';
+</script></body></html>
